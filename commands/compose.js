@@ -10,9 +10,6 @@ let targz = require('tar.gz')
 let composeFile = 'dockhero-compose.yml'
 
 function compose(args, env) {
-  cli.debug(args)
-  cli.debug(env)
-
   let composeArgs = ['-f', composeFile].concat(args)
   let composeEnv = Object.assign({}, process.env, env)
   let child = spawn('docker-compose', composeArgs, {env: composeEnv, stdio: [0,1,2]})
@@ -41,7 +38,7 @@ function prepare_env(config) {
   }
 
   if (!fs.existsSync(machineDir)){
-    cli.debug('getting serts...')
+    cli.log('getting certs...')
     mkdirp.sync(machineDir)
     let read = request.get(config['DOCKHERO_CERT_PATH'])
     let write = targz().createWriteStream(machineDir)
