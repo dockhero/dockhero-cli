@@ -61,7 +61,6 @@ module.exports = {
   needsApp: true,
   needsAuth: true,
   variableArgs: true,
-  args: [ {name: 'user'} ],
   run: cli.command((context, heroku) => {
     return heroku.get(`/apps/${context.app}/config-vars`)
       .then(config => prepare_env(config))
