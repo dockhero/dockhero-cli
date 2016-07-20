@@ -5,5 +5,6 @@ exports.topic = {
 }
 
 exports.commands = [
-  require('./commands/compose.js')
+  require('./commands/compose.js'),
+  require('./commands/docker.js')
 ]
