@@ -11,8 +11,8 @@ module.exports = {
   needsAuth: true,
   variableArgs: true,
   run: cli.command((context, heroku) => {
-    return heroku.get(`/apps/${context.app}/config-vars`)
-      .then(config => common.prepareEnv(config))
+    return common.getConfig(heroku, context.app)
+      .then(config => common.dockerEnv(config))
       .then(env => common.runCommand(process.env['SHELL'], context.args, env))
   })
 }

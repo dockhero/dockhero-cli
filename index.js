@@ -7,5 +7,6 @@ exports.topic = {
 exports.commands = [
   require('./commands/compose.js'),
   require('./commands/docker.js'),
-  require('./commands/sh.js')
+  require('./commands/sh.js'),
+  require('./commands/ssh.js')
 ]

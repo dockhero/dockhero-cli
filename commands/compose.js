@@ -13,8 +13,8 @@ module.exports = {
   run: cli.command((context, heroku) => {
     let args = ['-f', 'dockhero-compose.yml'].concat(context.args)
 
-    return heroku.get(`/apps/${context.app}/config-vars`)
-      .then(config => common.prepareEnv(config))
+    return common.getConfig(heroku, context.app)
+      .then(config => common.dockerEnv(config))
       .then(env => common.runCommand('docker-compose', args, env))
   })
 }
