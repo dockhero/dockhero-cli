@@ -53,7 +53,7 @@ function runCommand(command, args = [], env = {}) {
 function dockerEnv(config) {
   return persistCert(config).then(certPath => {
     let env = {
-      DOCKER_HOST: config.url,
+      DOCKER_HOST: config.docker_host,
       DOCKER_CERT_PATH: certPath,
       DOCKER_MACHINE_NAME: config.name,
       DOCKER_TLS_VERIFY: '1'
