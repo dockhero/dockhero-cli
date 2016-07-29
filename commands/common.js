@@ -10,7 +10,8 @@ let targz = require('tar.gz')
 function getConfig(heroku, app) {
   return heroku.get(`/apps/${app}/config-vars`)
     .then(config => new Promise((resolve, reject) => {
-      request(config['DOCKHERO_CONFIG_URL'], (error, response, body) => {
+      request({uri: config['DOCKHERO_CONFIG_URL'], headers: {Accept: '*/*'}}, (error, response, body) => {
+
         if (!error && response.statusCode == 200)
           resolve(JSON.parse(body))
         else
