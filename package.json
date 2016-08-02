@@ -1,5 +1,5 @@
 {
-  "name": "dockhero-cli",
+  "name": "dockhero",
   "version": "0.0.1",
   "description": "Heroku CLI plugin to manage dockhero machines",
   "main": "index.js",
@@ -23,5 +23,10 @@
     "mkdirp": "^0.5.1",
     "request": "^2.73.0",
     "tar.gz": "^1.0.5"
+  },
+  "scripts": {
+    "test": "standard",
+    "preversion": "npm test",
+    "postversion": "npm publish && git push && git push --tags"
   }
 }
