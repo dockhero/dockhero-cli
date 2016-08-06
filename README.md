@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
- npm install -g dockhero
+heroku plugins:install dockhero
 ``` 
 
 ## Usage
