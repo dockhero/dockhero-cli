@@ -8,4 +8,10 @@ heroku plugins:install dockhero
 
 ## Usage
 
-TBD
+```bash
+  dh:compose  #  dockhero-compose
+  dh:docker   #  dockhero-docker
+  dh:env      #  dockhero-env
+  dh:sh       #  dockhero-shell
+  dh:ssh      #  dockhero-ssh
+```
