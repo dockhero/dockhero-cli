@@ -7,9 +7,15 @@ let fs = require('fs')
 let mkdirp = require('mkdirp')
 let targz = require('tar.gz')
 
+let configVarsMissing = `Required config vars are missing, perhaps addon provisioning is still in progress.
+Please use heroku addons:open dockhero to check provisioning status`
+
 function getConfig (heroku, app) {
   return heroku.get(`/apps/${app}/config-vars`)
     .then(config => new Promise((resolve, reject) => {
+      if (!config['DOCKHERO_CONFIG_URL'])
+        throw new Error(configVarsMissing)
+
       request({uri: config['DOCKHERO_CONFIG_URL'], headers: {Accept: '*/*'}}, (error, response, body) => {
         if (!error && response.statusCode === 200) {
           resolve(JSON.parse(body))
