@@ -11,7 +11,7 @@ module.exports = {
   needsAuth: true,
   variableArgs: true,
   run: cli.command((context, heroku) => {
-    let args = ['-f', 'dockhero-compose.yml'].concat(context.args)
+    let args = ['-f', 'dockhero-compose.yml', '-p', 'dockhero'].concat(context.args)
 
     return common.getConfig(heroku, context.app)
       .then(config => common.dockerEnv(config))
