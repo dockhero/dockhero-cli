@@ -22,21 +22,16 @@ module.exports = {
           throw new Error('Invalid port')
         }
 
-        let protocol = 'http'
         if (argument === '443' || argument === 'https') {
-          protocol += 's'
+          return common.runCommand('open', [config.DOCKHERO_FLEXIBLE_SSL_URL], {})
         }
 
-        let port = `:${argument}`
-        if (protocol === 'https' || port === ':80' || port === ':') {
-          port = ''
+        let url = 'http://' + config.DOCKHERO_HOST
+        if (argument !== '80' || argument !== '') {
+          url += ':' + argument
         }
 
-        let host = protocol === 'https'
-          ? config.DOCKHERO_FLEXIBLE_SSL_HOST
-          : config.DOCKHERO_HOST
-
-        common.runCommand('open', [`${protocol}://${host}${port}`], {})
+        common.runCommand('open', [url], {})
       })
   })
 }
