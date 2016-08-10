@@ -19,7 +19,7 @@ function getConfig (heroku, app) {
 
       request({uri: config['DOCKHERO_CONFIG_URL'], headers: {Accept: '*/*'}}, (error, response, body) => {
         if (!error && response.statusCode === 200) {
-          resolve(JSON.parse(body))
+          resolve(Object.assign(config, JSON.parse(body)))
         } else {
           reject(error)
         }
