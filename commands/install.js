@@ -1,5 +1,4 @@
 'use strict'
-let common = require('./common.js')
 let cli = require('heroku-cli-util')
 let fs = require('fs')
 
@@ -22,13 +21,13 @@ module.exports = {
   variableArgs: true,
   run: cli.command((context, heroku) => {
     return new Promise((resolve, reject) => {
-      fs.writeFile("./dockhero-compose.yml", dockheroComposeYml.trim(), function(err) {
-        if(err) {
-          reject(err);
+      fs.writeFile('./dockhero-compose.yml', dockheroComposeYml.trim(), function (err) {
+        if (err) {
+          reject(err)
         }
-        console.log("Sample dockhero-compose.yml file has been generated");
-        resolve();
-      });
+        console.log('Sample dockhero-compose.yml file has been generated')
+        resolve()
+      })
     })
   })
 }
