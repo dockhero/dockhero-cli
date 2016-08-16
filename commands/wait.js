@@ -1,5 +1,4 @@
 'use strict'
-let common = require('./common.js')
 let cli = require('heroku-cli-util')
 
 module.exports = {
