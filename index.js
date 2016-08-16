@@ -11,5 +11,6 @@ exports.commands = [
   require('./commands/ssh.js'),
   require('./commands/env.js'),
   require('./commands/open.js'),
+  require('./commands/wait.js'),
   require('./commands/install.js')
 ]
