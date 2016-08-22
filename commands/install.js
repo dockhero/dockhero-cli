@@ -18,7 +18,7 @@ services:
       - "80:8080"
 networks:
   default:
-    driver: bridge
+    driver: bridge
 `
 
 module.exports = {
@@ -31,7 +31,7 @@ module.exports = {
   variableArgs: true,
   run: cli.command((context, heroku) => {
     return new Promise((resolve, reject) => {
-      const dockheroCompose = context.args[0] == 'v2'
+      const dockheroCompose = context.args[0] === 'v2'
         ? dockheroComposeV2
         : dockheroComposeV1
 
