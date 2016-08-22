@@ -9,6 +9,9 @@ services:
     image: dockhero/dockhero-docs:hello
     ports:
       - "80:8080"
+networks:
+  default:
+    driver: bridge
 `
 
 module.exports = {
