@@ -2,13 +2,23 @@
 let cli = require('heroku-cli-util')
 let fs = require('fs')
 
-const dockheroComposeYml = `
+const dockheroComposeV1 = `
+web:
+  image: dockhero/dockhero-docs:hello
+  ports:
+    - "80:8080"
+`
+
+const dockheroComposeV2 = `
 version: '2'
 services:
   web:
     image: dockhero/dockhero-docs:hello
     ports:
       - "80:8080"
+networks:
+  default:
+    driver: bridge
 `
 
 module.exports = {
@@ -21,7 +31,11 @@ module.exports = {
   variableArgs: true,
   run: cli.command((context, heroku) => {
     return new Promise((resolve, reject) => {
-      fs.writeFile('./dockhero-compose.yml', dockheroComposeYml.trim(), function (err) {
+      const dockheroCompose = context.args[0] === 'v2'
+        ? dockheroComposeV2
+        : dockheroComposeV1
+
+      fs.writeFile('./dockhero-compose.yml', dockheroCompose.trim(), function (err) {
         if (err) {
           reject(err)
         }
