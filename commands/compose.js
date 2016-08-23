@@ -17,16 +17,25 @@ module.exports = {
     return new Promise((resolve, reject) => {
       fs.stat('./dockhero-compose.yml', function (err, stats) {
         if (!err) {
-          resolve()
+          return resolve()
         } else if (err.code === 'ENOENT') {
-          console.log('Please create a dockhero-compose.yml file or use dh:install to get a sample one')
-        } else {
-          return reject(err)
+          console.log('Please create a dockhero-compose.yml file or use dh:install to get an example')
         }
+        reject(err)
       })
     })
-    .then(() => common.getConfig(heroku, context.app))
-    .then(config => common.dockerEnv(config))
+    .then(() => Promise.all([
+      common.getConfigVars(heroku, context.app),
+      common.getAppInfo(heroku, context.app)
+    ]))
+    .then(values => {
+      const configVars = values[0]
+      const appInfo = values[1]
+
+      return common.getDockheroConfig(configVars)
+      .then(config => common.dockerEnv(config))
+      .then(env => Object.assign({WEB_URL: appInfo.web_url}, configVars, env))
+    })
     .then(env => common.runCommand('docker-compose', args, env))
   })
 }

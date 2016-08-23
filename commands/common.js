@@ -10,21 +10,35 @@ let targz = require('tar.gz')
 let configVarsMissing = `Required config vars are missing, perhaps addon provisioning is still in progress
 Please use heroku addons:open dockhero to check provisioning status`
 
-function getConfig (heroku, app) {
+function getConfigVars (heroku, app) {
   return heroku.get(`/apps/${app}/config-vars`)
-    .then(config => new Promise((resolve, reject) => {
-      if (!config['DOCKHERO_CONFIG_URL']) {
-        throw new Error(configVarsMissing)
-      }
+}
 
-      request({uri: config['DOCKHERO_CONFIG_URL'], headers: {Accept: '*/*'}}, (error, response, body) => {
-        if (!error && response.statusCode === 200) {
-          resolve(Object.assign(config, JSON.parse(body)))
-        } else {
-          reject(error)
-        }
-      })
-    }))
+function getAppInfo (heroku, app) {
+  return heroku.get(`/apps/${app}`)
+}
+
+function getDockheroConfig (configVars) {
+  return new Promise((resolve, reject) => {
+    if (!configVars['DOCKHERO_CONFIG_URL']) {
+      throw new Error(configVarsMissing)
+    }
+
+    request({uri: configVars['DOCKHERO_CONFIG_URL'], headers: {Accept: '*/*'}}, (error, response, body) => {
+      if (!error && response.statusCode === 200) {
+        return resolve(JSON.parse(body))
+      }
+      reject(error)
+    })
+  })
+}
+
+function getConfig (heroku, app) {
+  return getConfigVars(heroku, app)
+  .then(configVars => {
+    return getDockheroConfig(configVars)
+    .then(dockheroConfig => Object.assign(configVars, dockheroConfig))
+  })
 }
 
 function persistCert (config) {
@@ -73,6 +87,9 @@ function dockerEnv (config) {
 }
 
 module.exports = {
+  getConfigVars,
+  getAppInfo,
+  getDockheroConfig,
   getConfig,
   persistCert,
   dockerEnv,
