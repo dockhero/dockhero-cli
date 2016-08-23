@@ -19,14 +19,24 @@ module.exports = {
         if (!err) {
           resolve()
         } else if (err.code === 'ENOENT') {
-          console.log('Please create a dockhero-compose.yml file or use dh:install to get a sample one')
+          console.log('Please create a dockhero-compose.yml file or use dh:install to get an example')
         } else {
-          return reject(err)
+          reject(err)
         }
       })
     })
-    .then(() => common.getConfig(heroku, context.app))
-    .then(config => common.dockerEnv(config))
+    .then(() => Promise.all([
+      common.getConfigVars(heroku, context.app),
+      common.getAppInfo(heroku, context.app)
+    ]))
+    .then(values => {
+      const configVars = values[0]
+      const appInfo = values[1]
+
+      return common.getDockheroConfig(configVars)
+      .then(config => common.dockerEnv(config))
+      .then(env => Object.assign({WEB_URL: appInfo.web_url}, configVars, env))
+    })
     .then(env => common.runCommand('docker-compose', args, env))
   })
 }
