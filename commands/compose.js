@@ -17,12 +17,11 @@ module.exports = {
     return new Promise((resolve, reject) => {
       fs.stat('./dockhero-compose.yml', function (err, stats) {
         if (!err) {
-          resolve()
+          return resolve()
         } else if (err.code === 'ENOENT') {
           console.log('Please create a dockhero-compose.yml file or use dh:install to get an example')
-        } else {
-          reject(err)
         }
+        reject(err)
       })
     })
     .then(() => Promise.all([
