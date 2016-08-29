@@ -49,10 +49,10 @@ First you can test the stack by running it in foreground:
 heroku dh:compose up
 ```
 
-If everything works fine, stop the stack by pressing `Ctrl-C` and run it in production by scaling up each of the services:
+If everything works fine, stop the stack by pressing `Ctrl-C` and run it in production:
 
 ```
-heroku dh:compose scale web=1
+heroku dh:compose start
 ```
 
 To check which processes are currently running, use either of these two commands:
@@ -62,5 +62,22 @@ heroku dh:compose ps
 heroku dh:docker ps
 ```
 
+## Variables Substitution
 
+`docker-compose` supports [Envrironment Variables Substitution](https://docs.docker.com/compose/environment-variables/) like this:
 
+```
+web:
+  environment:
+    - FOO="${FOO}"
+```
+
+Dockhero CLI plugin changes the rules of variable resolution to the following:
+
+1. Your shell ENV has top priority, e.g. `env FOO=bar heroku dh:compose up`
+2. Your Heroku app's variables have the next priority, e.g. `heroku config:set FOO=bar; heroku dh:compose up`
+3. The variables from your `.env` file have the least priority
+
+Dockhero CLI plugin makes the following enviroment variables available to the app:
+
+<TODO: >
