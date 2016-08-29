@@ -34,7 +34,7 @@ module.exports = {
 
       return common.getDockheroConfig(configVars)
       .then(config => common.dockerEnv(config))
-      .then(env => Object.assign({WEB_URL: appInfo.web_url}, configVars, env))
+      .then(env => Object.assign({HEROKU_APP_URL: appInfo.web_url, HEROKU_APP_NAME: appInfo.name}, configVars, env))
     })
     .then(env => common.runCommand('docker-compose', args, env))
   })
