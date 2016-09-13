@@ -22,6 +22,7 @@
     "heroku-cli-util": "^6.0.14",
     "mkdirp": "^0.5.1",
     "request": "^2.73.0",
+    "unzip": "^0.1.11",
     "tar.gz": "^1.0.5"
   },
   "scripts": {
