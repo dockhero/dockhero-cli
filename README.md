@@ -34,6 +34,7 @@ The plugin also provides these helper commands:
   dh:ssh      #  SSH to the Docker machine
   dh:open     #  opens your Dockhero stack in the browser
   dh:wait     #  waits while the provisioning is in progress
+  dh:generate #  installs the pre-defined example
 ```
 
 ## Example usage
