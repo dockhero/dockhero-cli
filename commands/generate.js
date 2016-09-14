@@ -1,24 +1,61 @@
 'use strict'
 let common = require('./common.js')
 let cli = require('heroku-cli-util')
+let co  = require('co')
 let fs = require('fs')
-let unzip = require('unzip')
 
-const s3UrlPrefix = 'https://dockhero-generators.s3.amazonaws.com/'
 const generatorsUrl = 'https://github.com/dockhero/generators/'
+const rawFilesUrl = 'https://raw.githubusercontent.com/dockhero/generators/master/'
 const readmeUrlPrefix = generatorsUrl + 'blob/master/'
 
-function s3Url(generatorName) {
-    return s3UrlPrefix + zipFileName(generatorName)
+class GithubReader {
+  constructor(generatorName) {
+    this.generatorName = generatorName
+  }
+
+  rawFileUrl(fileName) {
+    return rawFilesUrl + this.generatorName + '/' + fileName
+  }
+
+  readmeUrl() {
+    return generatorsUrl + "tree/master/" + this.generatorName
+  }
+
+  rootUrl() {
+    return this.rawFileUrl("") // README is visible in the root of the generator
+  }
+
+  got(filename) {
+    return cli.got(this.rawFileUrl(filename))
+  }
 }
 
-function zipFileName(generatorName) {
-    return generatorName + '.zip'
+function* generate (context, heroku) {
+  const reader = new GithubReader(context.args.name)
+  const pkg = yield reader.got('.package.txt')
+  const files = pkg.body.split("\n").map(s => s.trim());
+
+  if (!files || files.length == 0) {
+    cli.error(".package.txt not found in ", reader.rootUrl())
+    process.exit(1);
+  }
+
+  cli.log("Writing files:")
+
+  const promises = files.map(filename => {
+    if (filename) {
+      return reader.got(filename).then(response => {
+        cli.log("--> ", filename)
+        fs.writeFileSync(filename, response.body)
+      })
+    }
+  });
+
+  yield Promise.all(promises);
+  cli.log("Stack generated successfully")
+  cli.open(reader.readmeUrl())
 }
 
-function readmeUrl(generatorName) {
-    return readmeUrlPrefix + generatorName + '/README.md'
-}
 
 module.exports = {
     topic: 'dh',
@@ -26,27 +63,7 @@ module.exports = {
     description: 'dockhero-generate',
     help: 'dh:generate <name> - installs the pre-defined example specified by name',
     needsApp: true,
-    needsAuth: true,
+    needsAuth: false,
     args: [{ name: 'name' }],
-    run: cli.command((context, heroku) => {
-        return common.getConfig(heroku, context.app)
-            .then(config => {
-                let generatorName = context.args.name || ''
-                let success = false
-                cli.got.stream(s3Url(generatorName))
-                    .on('response', function() {
-                        success = true
-                        cli.debug("Check readme file at " + readmeUrl(generatorName))
-                    })
-                    .on('error', error => {
-                        success = false
-                        cli.error('Generator "' + generatorName + '" could not be found.\n' +
-                                  'Please check the list of all available generators at ' + generatorsUrl)
-                    } )
-                    .pipe(fs.createWriteStream(zipFileName(generatorName)))
-                    .on('finish', function() {
-                        cli.debug(success ? 'Successfully Done' : 'Unsuccessfully Done')
-                    })
-            })
-        })
+    run: cli.command(co.wrap(generate))
 }
