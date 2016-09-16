@@ -6,6 +6,10 @@ let request = require('request')
 let fs = require('fs')
 let mkdirp = require('mkdirp')
 let targz = require('tar.gz')
+let rp = require('request-promise')
+let Promise = require('bluebird')
+let co = require('co')
+let ora = require('ora')
 
 let configVarsMissing = `Required config vars are missing, perhaps addon provisioning is still in progress
 Please use heroku addons:open dockhero to check provisioning status`
@@ -86,12 +90,57 @@ function dockerEnv (config) {
   })
 }
 
+function* waitForProvision(statusUrl, spinner = null) {
+  let data = yield rp({uri: statusUrl, headers: {Accept: '*/*'}, json: true});
+
+  if (data.status === 'failed') {
+    if (spinner){
+      spinner.fail();
+    }
+    throw new Error('Sorry, add-on provisioning failed. Please remove the add-on and install it once again.');
+  }
+
+  if (data.status === 'creating') {
+    spinner = spinner || ora().start();
+    spinner.text = `Add-on provisioning will finish soon.....  ${getMinutesRemaining(data.provision_eta)}`;
+    return yield Promise.delay(5000).then(() => co(waitForProvision(statusUrl, spinner)));
+  }
+
+  if (data.status === 'running') {
+    if (spinner){
+      spinner.succeed();
+    }
+    return true;
+  }
+}
+
+function* getConfigs(context, heroku) {
+  let configVars = yield heroku.get(`/apps/${context.app}/config-vars`);
+  if (!configVars.DOCKHERO_STAGING_CONFIG_URL) {
+    throw new Error(configVarsMissing);
+  }
+
+  if (!configVars.DOCKHERO_STAGING_HOST) {
+    yield waitForProvision(configVars.DOCKHERO_STAGING_CONFIG_URL + '/status');
+    configVars = yield heroku.get(`/apps/${context.app}/config-vars`);
+  }
+
+  let dockheroConfig = yield rp({uri: configVars.DOCKHERO_STAGING_CONFIG_URL, headers: {Accept: '*/*'}, json: true});
+  return [configVars, dockheroConfig];
+}
+
+function getMinutesRemaining(eta) {
+  let seconds = Math.floor((new Date(eta) - new Date())/1000) + 20000;
+  return seconds < 0 ? '' : `${Math.floor(seconds / 60)}:${('0'+(seconds % 60)).slice(-2)}`;
+}
+
 module.exports = {
   getConfigVars,
   getAppInfo,
   getDockheroConfig,
   getConfig,
+  getConfigs,
   persistCert,
   dockerEnv,
-  runCommand
+  runCommand,
 }
