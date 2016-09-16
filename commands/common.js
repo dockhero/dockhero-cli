@@ -130,7 +130,7 @@ function* getConfigs(context, heroku) {
 }
 
 function getMinutesRemaining(eta) {
-  let seconds = Math.floor((new Date(eta) - new Date())/1000) + 20000;
+  let seconds = Math.floor((new Date(eta) - new Date())/1000);
   return seconds < 0 ? '' : `${Math.floor(seconds / 60)}:${('0'+(seconds % 60)).slice(-2)}`;
 }
 
