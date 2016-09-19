@@ -2,8 +2,8 @@ let addonApi = require('./addon_api')
 let cli = require('heroku-cli-util')
 let co = require('co')
 
-function* env(context, heroku) {
-  let [configVars, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
+function * env (context, heroku) {
+  let [, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
   let env = yield addonApi.dockerEnv(dockheroConfig)
   Object.keys(env).forEach(key => {
     console.log(`export ${key}="${env[key]}"`)

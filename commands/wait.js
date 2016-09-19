@@ -2,7 +2,7 @@ let cli = require('heroku-cli-util')
 let addonApi = require('./addon_api')
 let co = require('co')
 
-function* wait(context, heroku) {
+function * wait (context, heroku) {
   yield addonApi.getConfigs(context, heroku)
 }
 

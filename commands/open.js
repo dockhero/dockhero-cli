@@ -1,11 +1,13 @@
 let cli = require('heroku-cli-util')
 let co = require('co')
+let addonApi = require('./addon_api')
+let utils = require('./utils')
 
-function isValidPortNumber(port) {
+function isValidPortNumber (port) {
   return port === (parseInt(port, 10) + '') && port > 0 && port < (1 << 16)
 }
 
-function* open(context, heroku) {
+function * open (context, heroku) {
   let [configVars] = yield addonApi.getConfigs(context, heroku)
   let argument = context.args[0] || ''
   if (argument && argument !== 'https' && !isValidPortNumber(argument)) {

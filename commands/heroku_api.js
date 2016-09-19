@@ -1,8 +1,8 @@
-function getAppInfo(context, heroku) {
+function getAppInfo (context, heroku) {
   return heroku.get(`/apps/${context.app}`)
 }
 
-function getConfigVars(context, heroku) {
+function getConfigVars (context, heroku) {
   return heroku.get(`/apps/${context.app}/config-vars`)
 }
 

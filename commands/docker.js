@@ -3,8 +3,8 @@ let utils = require('./utils')
 let cli = require('heroku-cli-util')
 let co = require('co')
 
-function* docker(context, heroku) {
-  let [configVars, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
+function * docker (context, heroku) {
+  let [, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
   let env = yield addonApi.dockerEnv(dockheroConfig)
   yield utils.runCommand('docker', context.args, env)
 }

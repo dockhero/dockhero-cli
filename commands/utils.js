@@ -1,10 +1,10 @@
 let spawn = require('child_process').spawn
 
-function delay(ms) {
+function delay (ms) {
   return new Promise(resolve => setTimeout(() => resolve(), ms))
 }
 
-function runCommand(command, args = [], env = {}) {
+function runCommand (command, args = [], env = {}) {
   let dockerEnv = Object.assign({}, process.env, env)
   let child = spawn(command, args, {env: dockerEnv, stdio: [0, 1, 2]})
 

@@ -3,7 +3,7 @@ let mkdirp = require('mkdirp')
 let request = require('request')
 let targz = require('tar.gz')
 
-function persistCert(config) {
+function persistCert (config) {
   let dockerMachinesFolder = process.env['HOME'] + '/.docker/machine/machines/'
   let machineDir = dockerMachinesFolder + config.name
 

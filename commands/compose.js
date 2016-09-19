@@ -5,7 +5,7 @@ let cli = require('heroku-cli-util')
 let fs = require('fs')
 let co = require('co')
 
-function* checkComposeFileExist() {
+function * checkComposeFileExist () {
   yield new Promise((resolve, reject) => {
     fs.stat('./dockhero-compose.yml', (err, stats) => {
       if (!err) {
@@ -18,7 +18,7 @@ function* checkComposeFileExist() {
   })
 }
 
-function* compose(context, heroku) {
+function * compose (context, heroku) {
   yield checkComposeFileExist()
   let [[configVars, dockheroConfig], appInfo] = yield [
     addonApi.getConfigs(context, heroku),

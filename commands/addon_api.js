@@ -3,12 +3,11 @@ let certStorage = require('./cert_storage')
 let herokuApi = require('./heroku_api')
 let utils = require('./utils')
 let ora = require('ora')
-let co = require('co')
 
 let configVarsMissing = `Required config vars are missing, perhaps addon provisioning is still in progress
 Please use heroku addons:open dockhero to check provisioning status`
 
-function* getConfigs(context, heroku) {
+function * getConfigs (context, heroku) {
   let configVars = yield herokuApi.getConfigVars(context, heroku)
   if (!configVars.DOCKHERO_STAGING_CONFIG_URL) {
     throw new Error(configVarsMissing)
@@ -43,7 +42,7 @@ function* getConfigs(context, heroku) {
   return [configVars, dockheroConfig]
 }
 
-function* waitForProvisioning(stateProvider, callbacks) {
+function * waitForProvisioning (stateProvider, callbacks) {
   let initial = true
   while (true) {
     let state = yield stateProvider()
@@ -68,16 +67,16 @@ function* waitForProvisioning(stateProvider, callbacks) {
   }
 }
 
-function getStateProvider(stateUrl) {
+function getStateProvider (stateUrl) {
   return () => cli.got(stateUrl, {json: true}).then(response => response.body)
 }
 
-function getMinutesRemaining(eta) {
-  let seconds = Math.floor((new Date(eta) - new Date())/1000)
+function getMinutesRemaining (eta) {
+  let seconds = Math.floor((new Date(eta) - new Date()) / 1000)
   return seconds < 0 ? 'almost done...' : [Math.floor(seconds / 60), ':', ('0' + (seconds % 60)).slice(-2)].join()
 }
 
-function dockerEnv(config) {
+function dockerEnv (config) {
   return certStorage.persistCert(config).then(certPath => {
     let env = {
       DOCKER_HOST: config.docker_host,

@@ -18,7 +18,7 @@ services:
       - "80:8080"
 `
 
-function* install(context, heroku) {
+function * install (context, heroku) {
   const dockheroCompose = context.args[0] === 'v2'
     ? dockheroComposeV2
     : dockheroComposeV1

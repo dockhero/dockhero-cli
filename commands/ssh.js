@@ -4,8 +4,8 @@ let utils = require('./utils')
 let cli = require('heroku-cli-util')
 let co = require('co')
 
-function* openSsh(context, heroku) {
-  let [configVars, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
+function * openSsh (context, heroku) {
+  let [, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
   let certPath = yield certStorage.persistCert(dockheroConfig)
 
   let args = [`${dockheroConfig.ssh_user}@${dockheroConfig.ip}`, '-i', `${certPath}/id_rsa`]
