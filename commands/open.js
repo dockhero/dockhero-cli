@@ -1,9 +1,27 @@
-'use strict'
-let common = require('./common.js')
 let cli = require('heroku-cli-util')
+let co = require('co')
 
-function isValidPortNumber (port) {
+function isValidPortNumber(port) {
   return port === (parseInt(port, 10) + '') && port > 0 && port < (1 << 16)
+}
+
+function* open(context, heroku) {
+  let [configVars] = yield addonApi.getConfigs(context, heroku)
+  let argument = context.args[0] || ''
+  if (argument && argument !== 'https' && !isValidPortNumber(argument)) {
+    throw new Error('Invalid port')
+  }
+
+  if (argument === '443' || argument === 'https') {
+    return utils.runCommand('open', [configVars.DOCKHERO_FLEXIBLE_SSL_URL], {})
+  }
+
+  let url = 'http://' + configVars.DOCKHERO_HOST
+  if (argument !== '80' || argument !== '') {
+    url += ':' + argument
+  }
+
+  utils.runCommand('open', [url], {})
 }
 
 module.exports = {
@@ -14,24 +32,5 @@ module.exports = {
   needsApp: true,
   needsAuth: true,
   variableArgs: true,
-  run: cli.command((context, heroku) => {
-    return common.getConfig(heroku, context.app)
-      .then(config => {
-        let argument = context.args[0] || ''
-        if (argument && argument !== 'https' && !isValidPortNumber(argument)) {
-          throw new Error('Invalid port')
-        }
-
-        if (argument === '443' || argument === 'https') {
-          return common.runCommand('open', [config.DOCKHERO_FLEXIBLE_SSL_URL], {})
-        }
-
-        let url = 'http://' + config.DOCKHERO_HOST
-        if (argument !== '80' || argument !== '') {
-          url += ':' + argument
-        }
-
-        common.runCommand('open', [url], {})
-      })
-  })
+  run: cli.command(co.wrap(open))
 }

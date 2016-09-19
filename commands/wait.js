@@ -1,5 +1,10 @@
-'use strict'
 let cli = require('heroku-cli-util')
+let addonApi = require('./addon_api')
+let co = require('co')
+
+function* wait(context, heroku) {
+  yield addonApi.getConfigs(context, heroku)
+}
 
 module.exports = {
   topic: 'dh',
@@ -9,24 +14,5 @@ module.exports = {
   needsApp: true,
   needsAuth: true,
   variableArgs: true,
-  run: cli.command(function (context, heroku) {
-    let initial = true
-    const checkVars = () => {
-      return heroku.get(`/apps/${context.app}/config-vars`)
-      .then(config => {
-        if (initial && !config.DOCKHERO_HOST) {
-          console.log('Your Docker machine is being deployed...')
-        }
-        initial = false
-        if (config.DOCKHERO_HOST) {
-          console.log('Your Docker machine was deployed successfully')
-          return true
-        }
-
-        return new Promise(resolve => setTimeout(() => { resolve() }, 10000))
-          .then(() => { return checkVars() })
-      })
-    }
-    return checkVars()
-  })
+  run: cli.command(co.wrap(wait))
 }

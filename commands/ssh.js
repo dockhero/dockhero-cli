@@ -1,14 +1,15 @@
-'use strict'
-let common = require('./common.js');
-let cli = require('heroku-cli-util');
-let co = require('co');
+let addonApi = require('./addon_api')
+let certStorage = require('./cert_storage')
+let utils = require('./utils')
+let cli = require('heroku-cli-util')
+let co = require('co')
 
 function* openSsh(context, heroku) {
-  let [configVars, dockheroConfig] = yield common.getConfigs(context, heroku);
-  let certPath = yield common.persistCert(dockheroConfig);
+  let [configVars, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
+  let certPath = yield certStorage.persistCert(dockheroConfig)
 
-  let args = [`${dockheroConfig.ssh_user}@${dockheroConfig.ip}`, '-i', `${certPath}/id_rsa`];
-  yield common.runCommand('ssh', args);
+  let args = [`${dockheroConfig.ssh_user}@${dockheroConfig.ip}`, '-i', `${certPath}/id_rsa`]
+  yield utils.runCommand('ssh', args)
 }
 
 module.exports = {
