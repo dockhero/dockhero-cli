@@ -1,7 +1,7 @@
 let fs = require('fs')
 let mkdirp = require('mkdirp')
-let request = require('request')
 let targz = require('tar.gz')
+let cli = require('heroku-cli-util')
 
 function persistCert (config) {
   let dockerMachinesFolder = process.env['HOME'] + '/.docker/machine/machines/'
@@ -13,13 +13,12 @@ function persistCert (config) {
 
   console.log('getting certs...')
   mkdirp.sync(machineDir)
-  let read = request.get(config.certs)
-  let write = targz().createWriteStream(machineDir)
-  let stream = read.pipe(write)
+  let tgzStream = targz().createWriteStream(machineDir)
+  let httpStream = cli.got.stream(config.certs).pipe(tgzStream)
 
   return new Promise((resolve, reject) => {
-    stream.on('finish', () => resolve(machineDir))
-    stream.on('error', reject)
+    httpStream.on('finish', () => resolve(machineDir))
+    httpStream.on('error', reject)
   })
 }
 
