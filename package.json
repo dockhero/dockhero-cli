@@ -19,8 +19,10 @@
   ],
   "license": "ISC",
   "dependencies": {
+    "co": "^4.6.0",
     "heroku-cli-util": "^6.0.14",
     "mkdirp": "^0.5.1",
+    "ora": "^0.3.0",
     "request": "^2.73.0",
     "tar.gz": "^1.0.5"
   },

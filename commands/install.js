@@ -1,6 +1,6 @@
-'use strict'
 let cli = require('heroku-cli-util')
 let fs = require('fs')
+let co = require('co')
 
 const dockheroComposeV1 = `
 web:
@@ -16,10 +16,22 @@ services:
     image: dockhero/dockhero-docs:hello
     ports:
       - "80:8080"
-networks:
-  default:
-    driver: bridge
 `
+
+function * install (context, heroku) {
+  const dockheroCompose = context.args[0] === 'v2'
+    ? dockheroComposeV2
+    : dockheroComposeV1
+  yield new Promise((resolve, reject) => {
+    fs.writeFile('./dockhero-compose.yml', dockheroCompose.trimLeft(), function (err) {
+      if (err) {
+        reject(err)
+      }
+      console.log('Sample dockhero-compose.yml file has been generated')
+      resolve()
+    })
+  })
+}
 
 module.exports = {
   topic: 'dh',
@@ -29,19 +41,5 @@ module.exports = {
   needsApp: true,
   needsAuth: true,
   variableArgs: true,
-  run: cli.command((context, heroku) => {
-    return new Promise((resolve, reject) => {
-      const dockheroCompose = context.args[0] === 'v2'
-        ? dockheroComposeV2
-        : dockheroComposeV1
-
-      fs.writeFile('./dockhero-compose.yml', dockheroCompose.trim(), function (err) {
-        if (err) {
-          reject(err)
-        }
-        console.log('Sample dockhero-compose.yml file has been generated')
-        resolve()
-      })
-    })
-  })
+  run: cli.command(co.wrap(install))
 }
