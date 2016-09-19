@@ -9,12 +9,12 @@ Please use heroku addons:open dockhero to check provisioning status`
 
 function * getConfigs (context, heroku) {
   let configVars = yield herokuApi.getConfigVars(context, heroku)
-  if (!configVars.DOCKHERO_STAGING_CONFIG_URL) {
+  if (!configVars.DOCKHERO_CONFIG_URL) {
     throw new Error(configVarsMissing)
   }
 
-  if (!configVars.DOCKHERO_STAGING_HOST) {
-    let stateUrl = configVars.DOCKHERO_STAGING_CONFIG_URL + '/status'
+  if (!configVars.DOCKHERO_HOST) {
+    let stateUrl = configVars.DOCKHERO_CONFIG_URL + '/status'
     let spinner = null
     yield waitForProvisioning(getStateProvider(stateUrl), {
       onStartWaiting: () => {
@@ -38,7 +38,7 @@ function * getConfigs (context, heroku) {
     configVars = yield herokuApi.getConfigVars(context, heroku)
   }
 
-  let dockheroConfig = yield cli.got(configVars.DOCKHERO_STAGING_CONFIG_URL, {json: true}).then(response => response.body)
+  let dockheroConfig = yield cli.got(configVars.DOCKHERO_CONFIG_URL, {json: true}).then(response => response.body)
   return [configVars, dockheroConfig]
 }
 
