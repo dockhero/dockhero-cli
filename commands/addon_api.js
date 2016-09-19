@@ -17,10 +17,8 @@ function * getConfigs (context, heroku) {
     let stateUrl = configVars.DOCKHERO_CONFIG_URL + '/status'
     let spinner = null
     yield waitForProvisioning(getStateProvider(stateUrl), {
-      onStartWaiting: () => {
-        spinner = ora().start()
-      },
       onProgress: eta => {
+        spinner = spinner || ora().start()
         spinner.text = `Add-on provisioning will finish soon...  ${getMinutesRemaining(eta)}`
       },
       onSuccess: () => {
@@ -48,10 +46,6 @@ function * waitForProvisioning (stateProvider, callbacks) {
     let state = yield stateProvider()
     switch (state.status) {
       case 'creating':
-        if (initial) {
-          callbacks.onStartWaiting()
-          initial = false
-        }
         callbacks.onProgress(state.provision_eta)
         yield utils.delay(5000)
         break
