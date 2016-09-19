@@ -6,8 +6,7 @@ let request = require('request')
 let fs = require('fs')
 let mkdirp = require('mkdirp')
 let targz = require('tar.gz')
-let rp = require('request-promise')
-let Promise = require('bluebird')
+let utils = require('./utils')
 let co = require('co')
 let ora = require('ora')
 
@@ -91,7 +90,7 @@ function dockerEnv (config) {
 }
 
 function* waitForProvision(statusUrl, spinner = null) {
-  let data = yield rp({uri: statusUrl, headers: {Accept: '*/*'}, json: true});
+  let data = yield cli.got(configVars.DOCKHERO_STAGING_CONFIG_URL, {json: true}).then(response => response.body);
 
   if (data.status === 'failed') {
     if (spinner){
@@ -103,7 +102,7 @@ function* waitForProvision(statusUrl, spinner = null) {
   if (data.status === 'creating') {
     spinner = spinner || ora().start();
     spinner.text = `Add-on provisioning will finish soon.....  ${getMinutesRemaining(data.provision_eta)}`;
-    return yield Promise.delay(5000).then(() => co(waitForProvision(statusUrl, spinner)));
+    return yield utils.delay(5000).then(() => co(waitForProvision(statusUrl, spinner)));
   }
 
   if (data.status === 'running') {
@@ -125,13 +124,14 @@ function* getConfigs(context, heroku) {
     configVars = yield heroku.get(`/apps/${context.app}/config-vars`);
   }
 
-  let dockheroConfig = yield rp({uri: configVars.DOCKHERO_STAGING_CONFIG_URL, headers: {Accept: '*/*'}, json: true});
+  let dockheroConfig = yield cli.got(configVars.DOCKHERO_STAGING_CONFIG_URL, {json: true}).then(response => response.body);
+  console.log(dockheroConfig);
   return [configVars, dockheroConfig];
 }
 
 function getMinutesRemaining(eta) {
   let seconds = Math.floor((new Date(eta) - new Date())/1000);
-  return seconds < 0 ? '' : `${Math.floor(seconds / 60)}:${('0'+(seconds % 60)).slice(-2)}`;
+  return seconds < 0 ? 'almost done...' : [Math.floor(seconds / 60), ':', ('0' + (seconds % 60)).slice(-2)].join();
 }
 
 module.exports = {
