@@ -21,15 +21,9 @@ function * getConfigs (context, heroku) {
         spinner = spinner || ora().start()
         spinner.text = `Add-on provisioning will finish soon...  ${getMinutesRemaining(eta)}`
       },
-      onSuccess: () => {
-        if (spinner) {
-          spinner.succeed()
-        }
-      },
+      onSuccess: () => spinner && spinner.succeed(),
       onFailed: status => {
-        if (spinner) {
-          spinner.fail()
-        }
+        spinner && spinner.fail()
         throw new Error('Sorry, add-on provisioning failed. Please remove the add-on and install it once again.')
       }
     })
@@ -41,7 +35,6 @@ function * getConfigs (context, heroku) {
 }
 
 function * waitForProvisioning (stateProvider, callbacks) {
-  let initial = true
   while (true) {
     let state = yield stateProvider()
     switch (state.status) {
