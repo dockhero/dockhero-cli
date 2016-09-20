@@ -25,6 +25,9 @@
     "ora": "^0.3.0",
     "tar.gz": "^1.0.5"
   },
+  "devDependencies": {
+    "standard": "*"
+  },
   "scripts": {
     "test": "standard",
     "preversion": "npm test",
