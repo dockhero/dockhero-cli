@@ -60,7 +60,10 @@ function getStateProvider (stateUrl) {
 
 function getMinutesRemaining (eta) {
   let seconds = Math.floor((new Date(eta) - new Date()) / 1000)
-  return seconds < 0 ? 'almost done...' : [Math.floor(seconds / 60), ':', ('0' + (seconds % 60)).slice(-2)].join()
+  if (seconds < 0) {
+    return 'almost done...'
+  }
+  return [Math.floor(seconds / 60), ':', ('0' + (seconds % 60)).slice(-2)].join('')
 }
 
 function dockerEnv (config) {
