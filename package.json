@@ -19,6 +19,7 @@
   ],
   "license": "ISC",
   "dependencies": {
+    "bluebird": "^3.4.6",
     "co": "^4.6.0",
     "heroku-cli-util": "^6.0.14",
     "mkdirp": "^0.5.1",

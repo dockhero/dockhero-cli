@@ -3,6 +3,9 @@ let certStorage = require('./cert_storage')
 let herokuApi = require('./heroku_api')
 let utils = require('./utils')
 let ora = require('ora')
+let Promise = require('bluebird')
+let fs = Promise.promisifyAll(require('fs'))
+let mkdirp = Promise.promisify(require('mkdirp'))
 
 let configVarsMissing = `Required config vars are missing, perhaps addon provisioning is still in progress
 Please use heroku addons:open dockhero to check provisioning status`
@@ -30,7 +33,7 @@ function * getConfigs (context, heroku) {
     configVars = yield herokuApi.getConfigVars(context, heroku)
   }
 
-  let dockheroConfig = yield cli.got(configVars.DOCKHERO_CONFIG_URL, {json: true}).then(response => response.body)
+  let dockheroConfig = yield getDockheroConfigCached(configVars.DOCKHERO_CONFIG_URL)
   return [configVars, dockheroConfig]
 }
 
@@ -52,6 +55,18 @@ function * waitForProvisioning (stateProvider, callbacks) {
         throw new Error(`Invalid status: ${state.status}`)
     }
   }
+}
+
+function * getDockheroConfigCached (configUrl) {
+  const cacheFile = `/tmp/dockhero/${configUrl.replace(/\W+/g, '_')}.tmp`
+
+  const cacheExists = yield fs.statAsync(cacheFile).then(() => true).catch(() => false)
+  if (!cacheExists) {
+    const config = yield cli.got(configUrl, {json: true}).then(response => response.body)
+    mkdirp('/tmp/dockhero/').then(() => fs.writeFileAsync(cacheFile, config))
+    return config
+  }
+  return yield fs.readFileAsync(cacheFile)
 }
 
 function getStateProvider (stateUrl) {
