@@ -1,6 +1,6 @@
 {
   "name": "dockhero",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Heroku CLI plugin to manage dockhero machines",
   "main": "index.js",
   "author": "@cloudcastle",
