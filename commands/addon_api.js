@@ -65,10 +65,10 @@ function * getDockheroConfigCached (configUrl) {
   const cacheStats = yield fs.statAsync(cacheFile).catch(() => null)
   if (!cacheStats || (new Date() - cacheStats.mtime) > cacheTtl) {
     const config = yield cli.got(configUrl, {json: true}).then(response => response.body)
-    mkdirp('/tmp/dockhero/').then(() => fs.writeFileAsync(cacheFile, config))
+    mkdirp('/tmp/dockhero/').then(() => fs.writeFileAsync(cacheFile, JSON.stringify(config)))
     return config
   }
-  return yield fs.readFileAsync(cacheFile)
+  return yield fs.readFileAsync(cacheFile).then(data => JSON.parse(data))
 }
 
 function getStateProvider (stateUrl) {
