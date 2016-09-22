@@ -6,6 +6,7 @@ const ora = require('ora')
 const Promise = require('bluebird')
 const fs = Promise.promisifyAll(require('fs'))
 const mkdirp = Promise.promisify(require('mkdirp'))
+const Url = require('url')
 
 const configVarsMissing = `Required config vars are missing, perhaps addon provisioning is still in progress
 Please use heroku addons:open dockhero to check provisioning status`
@@ -59,7 +60,7 @@ function * waitForProvisioning (stateProvider, callbacks) {
 }
 
 function * getDockheroConfigCached (configUrl) {
-  const cacheFile = `/tmp/dockhero/${configUrl.replace(/\W+/g, '_')}.tmp`
+  const cacheFile = `/tmp/dockhero/${Url.parse(configUrl).path.replace(/\W+/g, '')}.tmp`
 
   const cacheStats = yield fs.statAsync(cacheFile).catch(() => null)
   if (!cacheStats || (new Date() - cacheStats.mtime) > cacheTtl) {
