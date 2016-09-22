@@ -1,14 +1,15 @@
-let cli = require('heroku-cli-util')
-let certStorage = require('./cert_storage')
-let herokuApi = require('./heroku_api')
-let utils = require('./utils')
-let ora = require('ora')
-let Promise = require('bluebird')
-let fs = Promise.promisifyAll(require('fs'))
-let mkdirp = Promise.promisify(require('mkdirp'))
+const cli = require('heroku-cli-util')
+const certStorage = require('./cert_storage')
+const herokuApi = require('./heroku_api')
+const utils = require('./utils')
+const ora = require('ora')
+const Promise = require('bluebird')
+const fs = Promise.promisifyAll(require('fs'))
+const mkdirp = Promise.promisify(require('mkdirp'))
 
-let configVarsMissing = `Required config vars are missing, perhaps addon provisioning is still in progress
+const configVarsMissing = `Required config vars are missing, perhaps addon provisioning is still in progress
 Please use heroku addons:open dockhero to check provisioning status`
+const cacheTtl = 8 * 60 * 60 * 1000
 
 function * getConfigs (context, heroku) {
   let configVars = yield herokuApi.getConfigVars(context, heroku)
@@ -60,8 +61,8 @@ function * waitForProvisioning (stateProvider, callbacks) {
 function * getDockheroConfigCached (configUrl) {
   const cacheFile = `/tmp/dockhero/${configUrl.replace(/\W+/g, '_')}.tmp`
 
-  const cacheExists = yield fs.statAsync(cacheFile).then(() => true).catch(() => false)
-  if (!cacheExists) {
+  const cacheStats = yield fs.statAsync(cacheFile).catch(() => null)
+  if (!cacheStats || (new Date() - cacheStats.mtime) > cacheTtl) {
     const config = yield cli.got(configUrl, {json: true}).then(response => response.body)
     mkdirp('/tmp/dockhero/').then(() => fs.writeFileAsync(cacheFile, config))
     return config
