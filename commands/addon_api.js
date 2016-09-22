@@ -1,11 +1,16 @@
-let cli = require('heroku-cli-util')
-let certStorage = require('./cert_storage')
-let herokuApi = require('./heroku_api')
-let utils = require('./utils')
-let ora = require('ora')
+const cli = require('heroku-cli-util')
+const certStorage = require('./cert_storage')
+const herokuApi = require('./heroku_api')
+const utils = require('./utils')
+const ora = require('ora')
+const Promise = require('bluebird')
+const fs = Promise.promisifyAll(require('fs'))
+const mkdirp = Promise.promisify(require('mkdirp'))
+const Url = require('url')
 
-let configVarsMissing = `Required config vars are missing, perhaps addon provisioning is still in progress
+const configVarsMissing = `Required config vars are missing, perhaps addon provisioning is still in progress
 Please use heroku addons:open dockhero to check provisioning status`
+const cacheTtl = 8 * 60 * 60 * 1000
 
 function * getConfigs (context, heroku) {
   let configVars = yield herokuApi.getConfigVars(context, heroku)
@@ -30,7 +35,7 @@ function * getConfigs (context, heroku) {
     configVars = yield herokuApi.getConfigVars(context, heroku)
   }
 
-  let dockheroConfig = yield cli.got(configVars.DOCKHERO_CONFIG_URL, {json: true}).then(response => response.body)
+  let dockheroConfig = yield getDockheroConfigCached(configVars.DOCKHERO_CONFIG_URL)
   return [configVars, dockheroConfig]
 }
 
@@ -52,6 +57,18 @@ function * waitForProvisioning (stateProvider, callbacks) {
         throw new Error(`Invalid status: ${state.status}`)
     }
   }
+}
+
+function * getDockheroConfigCached (configUrl) {
+  const cacheFile = `/tmp/dockhero/${Url.parse(configUrl).path.replace(/\W+/g, '')}.tmp`
+
+  const cacheStats = yield fs.statAsync(cacheFile).catch(() => null)
+  if (!cacheStats || (new Date() - cacheStats.mtime) > cacheTtl) {
+    const config = yield cli.got(configUrl, {json: true}).then(response => response.body)
+    mkdirp('/tmp/dockhero/').then(() => fs.writeFileAsync(cacheFile, config))
+    return config
+  }
+  return yield fs.readFileAsync(cacheFile)
 }
 
 function getStateProvider (stateUrl) {
