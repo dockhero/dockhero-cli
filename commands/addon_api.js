@@ -45,7 +45,7 @@ function * waitForProvisioning (stateProvider, callbacks) {
     switch (state.status) {
       case 'creating':
         callbacks.onProgress(state.provision_eta)
-        yield utils.delay(5000)
+        yield utils.delay(500)
         break
       case 'running':
         callbacks.onSuccess()
@@ -71,8 +71,31 @@ function * getDockheroConfigCached (configUrl) {
   return yield fs.readFileAsync(cacheFile).then(data => JSON.parse(data))
 }
 
+function getState (stateUrl, cache) {
+  return cli.got(stateUrl, {json: true})
+  .then(response => response.body)
+  .then(state => {
+    cache.lastCheck = new Date()
+    cache.state = state
+    return state
+  })
+}
+
 function getStateProvider (stateUrl) {
-  return () => cli.got(stateUrl, {json: true}).then(response => response.body)
+  let cache = {}
+  const checkPeriod = 5 * 1000
+  return () => {
+    if (cache.state) {
+      if (new Date() - cache.lastCheck > checkPeriod) {
+        getState(stateUrl, cache)
+      }
+      return Promise.resolve(cache.state)
+    }
+
+    if (!cache.state) {
+      return getState(stateUrl, cache)
+    }
+  }
 }
 
 function getMinutesRemaining (eta) {
