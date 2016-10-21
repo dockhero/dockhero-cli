@@ -28,7 +28,19 @@ function * compose (context, heroku) {
   let env = yield addonApi.dockerEnv(dockheroConfig)
   env = Object.assign({HEROKU_APP_URL: appInfo.web_url, HEROKU_APP_NAME: appInfo.name}, configVars, env)
   let args = ['-f', 'dockhero-compose.yml', '-p', 'dockhero'].concat(context.args)
-  yield utils.runCommand('docker-compose', args, env)
+
+  try {
+    yield utils.runCommand('docker-compose1', args, env)
+  }
+  catch(err) {
+    if (err.code == 'ENOENT') {
+      cli.error("Couldn't find docker-compose tool installed locally")
+      cli.warn("Did you install Docker?")
+      cli.warn(`Please see https://docs.docker.com/engine/installation/`)
+      process.exit(1)
+    }
+    throw err
+  }
 }
 
 module.exports = {

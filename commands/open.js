@@ -15,7 +15,7 @@ function * open (context, heroku) {
   }
 
   if (argument === '443' || argument === 'https') {
-    return utils.runCommand('open', [configVars.DOCKHERO_FLEXIBLE_SSL_URL], {})
+    return yield cli.open(configVars.DOCKHERO_FLEXIBLE_SSL_URL);
   }
 
   let url = 'http://' + configVars.DOCKHERO_HOST
@@ -23,7 +23,7 @@ function * open (context, heroku) {
     url += ':' + argument
   }
 
-  utils.runCommand('open', [url], {})
+  yield cli.open(url);
 }
 
 module.exports = {
