@@ -30,7 +30,7 @@ function * compose (context, heroku) {
   let args = ['-f', 'dockhero-compose.yml', '-p', 'dockhero'].concat(context.args)
 
   try {
-    yield utils.runCommand('docker-compose1', args, env)
+    yield utils.runCommand('docker-compose', args, env)
   }
   catch(err) {
     if (err.code == 'ENOENT') {
