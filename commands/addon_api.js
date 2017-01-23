@@ -87,7 +87,7 @@ function getStateProvider (stateUrl) {
     if (cache.state) {
       if (new Date() - cache.lastCheck > checkPeriod) {
         getState(stateUrl, cache)
-      }0
+      }
       return Promise.resolve(cache.state)
     }
 
