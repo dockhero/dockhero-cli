@@ -8,8 +8,7 @@ const fs = Promise.promisifyAll(require('fs'))
 const mkdirp = Promise.promisify(require('mkdirp'))
 const Url = require('url')
 
-const configVarsMissing = `Required config vars are missing, perhaps addon provisioning is still in progress
-Please use heroku addons:open dockhero to check provisioning status`
+const configVarsMissing = `ERROR: DOCKHERO_CONFIG_URL is not found. Please make sure dockhero plugin is successfully installed and try again.`
 const cacheTtl = 8 * 60 * 60 * 1000
 
 function * getConfigs (context, heroku) {
