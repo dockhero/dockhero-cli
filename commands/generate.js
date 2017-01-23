@@ -2,6 +2,7 @@
 let cli = require('heroku-cli-util')
 let co = require('co')
 let fs = require('fs')
+const _ = require('lodash')
 
 const generatorsUrl = 'https://github.com/dockhero/generators/'
 const rawFilesUrl = 'https://raw.githubusercontent.com/dockhero/generators/master/'
@@ -28,6 +29,17 @@ class GithubReader {
   }
 }
 
+const VALID_RESPONSES = 'y Y n N yes Yes no No YES NO'.split(' ')
+const TRUE_RESPONSES = 'y Y yes Yes YES'.split(' ')
+
+function * yesOrNo(message) {
+  let response = ""
+  while (!_.includes(VALID_RESPONSES, response)) {
+    response = yield cli.prompt(message, {})
+  }
+  return _.includes(TRUE_RESPONSES, response)
+}
+
 function * generate (context, heroku) {
   const reader = new GithubReader(context.args.name)
   const pkg = yield reader.got('.package.txt')
@@ -36,6 +48,15 @@ function * generate (context, heroku) {
   if (!files || files.length === 0) {
     cli.error('.package.txt not found in ', reader.rootUrl())
     process.exit(1)
+  }
+
+  const existingFiles = _.filter(files, function(fname) {
+    return fs.existsSync(fname);
+  })
+
+  if (existingFiles.length > 0) {
+    cli.warn("The following file(s) already exist and will be overwritten:\n--> " + existingFiles.join("\n--> "));
+    (yield yesOrNo('Proceed?')) || process.exit(1);
   }
 
   cli.log('Writing files:')
