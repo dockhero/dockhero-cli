@@ -33,8 +33,7 @@ function * compose (context, heroku) {
     yield utils.runCommand('docker-compose', args, env)
   } catch (err) {
     if (err.code === 'ENOENT') {
-      cli.error("Couldn't find docker-compose tool installed locally")
-      cli.warn('Did you install Docker?')
+      cli.error("Couldn't find docker-compose binary installed locally")
       cli.warn(`Please see https://docs.docker.com/engine/installation/`)
       process.exit(1)
     }
