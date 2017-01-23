@@ -6,7 +6,6 @@ let fs = require('fs')
 let co = require('co')
 let _ = require('lodash')
 
-
 const PLACEHOLDER_REGEXP = new RegExp(/\$\{[\w\d_]+\}/, 'g')
 
 function * checkComposeFileExist () {
@@ -22,21 +21,21 @@ function * checkComposeFileExist () {
   })
 }
 
-function checkComposeFileValid(herokuEnv) {
+function checkComposeFileValid (herokuEnv) {
   const contents = fs.readFileSync('./dockhero-compose.yml', 'utf8')
   const placeholders = contents.match(PLACEHOLDER_REGEXP)
-  const badPlaceholders = _.filter(placeholders, function(ph) {
+  const badPlaceholders = _.filter(placeholders, function (ph) {
     const varName = ph.substr(2, ph.length - 3)
     return !_.has(process.env, varName) && !_.has(herokuEnv, varName)
   })
 
   if (badPlaceholders.length > 0) {
-    cli.warn("Please set the following variables in Heroku Config:")
-    _.each(badPlaceholders, function(ph) {
-      cli.warn("--> " + ph)
+    cli.warn('Please set the following variables in Heroku Config:')
+    _.each(badPlaceholders, function (ph) {
+      cli.warn('--> ' + ph)
     })
-    cli.warn("See https://docs.dockhero.io/features/variables-substitution.html for more help")
-    throw new Error("dockhero-compose.yml references some undefined environment variables. Aborted.")
+    cli.warn('See https://docs.dockhero.io/features/variables-substitution.html for more help')
+    throw new Error('dockhero-compose.yml references some undefined environment variables. Aborted.')
   }
 }
 

@@ -32,8 +32,8 @@ class GithubReader {
 const VALID_RESPONSES = 'y Y n N yes Yes no No YES NO'.split(' ')
 const TRUE_RESPONSES = 'y Y yes Yes YES'.split(' ')
 
-function * yesOrNo(message) {
-  let response = ""
+function * yesOrNo (message) {
+  let response = ''
   while (!_.includes(VALID_RESPONSES, response)) {
     response = yield cli.prompt(message, {})
   }
@@ -49,7 +49,7 @@ function * generate (context, heroku) {
   } catch (err) {
     if (err.statusCode === 404) {
       cli.error("The stack named '" + context.args.name + "' is not found")
-      cli.error("See https://github.com/dockhero/generators for available stacks")
+      cli.error('See https://github.com/dockhero/generators for available stacks')
       process.exit(1)
     }
     throw err
@@ -61,13 +61,13 @@ function * generate (context, heroku) {
     process.exit(1)
   }
 
-  const existingFiles = _.filter(files, function(fname) {
-    return fs.existsSync(fname);
+  const existingFiles = _.filter(files, function (fname) {
+    return fs.existsSync(fname)
   })
 
   if (existingFiles.length > 0) {
-    cli.warn("The following file(s) already exist and will be overwritten:\n--> " + existingFiles.join("\n--> "));
-    (yield yesOrNo('Proceed?')) || process.exit(1);
+    cli.warn('The following file(s) already exist and will be overwritten:\n--> ' + existingFiles.join('\n--> '));
+    (yield yesOrNo('Proceed?')) || process.exit(1)
   }
 
   cli.log('Writing files:')
@@ -83,12 +83,12 @@ function * generate (context, heroku) {
 
   yield Promise.all(promises)
 
-  cli.log("Stack generated\n")
+  cli.log('Stack generated\n')
   try {
     const usage = yield reader.got('.usage.txt')
     cli.log(usage.body)
   } catch (err) {
-    cli.log("Please find more info at " + reader.readmeUrl())
+    cli.log('Please find more info at ' + reader.readmeUrl())
   }
 }
 
