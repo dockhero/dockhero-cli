@@ -1,7 +1,7 @@
 let cli = require('heroku-cli-util')
 let co = require('co')
 let addonApi = require('./addon_api')
-let utils = require('./utils')
+// let utils = require('./utils')
 
 function isValidPortNumber (port) {
   return port === (parseInt(port, 10) + '') && port > 0 && port < (1 << 16)
@@ -15,7 +15,7 @@ function * open (context, heroku) {
   }
 
   if (argument === '443' || argument === 'https') {
-    return yield cli.open(configVars.DOCKHERO_FLEXIBLE_SSL_URL);
+    return yield cli.open(configVars.DOCKHERO_FLEXIBLE_SSL_URL)
   }
 
   let url = 'http://' + configVars.DOCKHERO_HOST
@@ -23,7 +23,7 @@ function * open (context, heroku) {
     url += ':' + argument
   }
 
-  yield cli.open(url);
+  yield cli.open(url)
 }
 
 module.exports = {
