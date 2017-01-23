@@ -42,7 +42,18 @@ function * yesOrNo(message) {
 
 function * generate (context, heroku) {
   const reader = new GithubReader(context.args.name)
-  const pkg = yield reader.got('.package.txt')
+  let pkg = null
+
+  try {
+    pkg = yield reader.got('.package.txt')
+  } catch (err) {
+    if (err.statusCode === 404) {
+      cli.error("The stack named '" + context.args.name + "' is not found")
+      cli.error("See https://github.com/dockhero/generators for available stacks")
+      process.exit(1)
+    }
+    throw err
+  }
   const files = pkg.body.split('\n').map(s => s.trim())
 
   if (!files || files.length === 0) {
@@ -71,8 +82,14 @@ function * generate (context, heroku) {
   })
 
   yield Promise.all(promises)
-  cli.log('Stack generated successfully')
-  cli.open(reader.readmeUrl())
+
+  cli.log("Stack generated\n")
+  try {
+    const usage = yield reader.got('.usage.txt')
+    cli.log(usage.body)
+  } catch (err) {
+    cli.log("Please find more info at " + reader.readmeUrl())
+  }
 }
 
 module.exports = {
