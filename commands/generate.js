@@ -2,6 +2,7 @@
 let cli = require('heroku-cli-util')
 let co = require('co')
 let fs = require('fs')
+const _ = require('lodash')
 
 const generatorsUrl = 'https://github.com/dockhero/generators/'
 const rawFilesUrl = 'https://raw.githubusercontent.com/dockhero/generators/master/'
@@ -28,14 +29,45 @@ class GithubReader {
   }
 }
 
+const VALID_RESPONSES = 'y Y n N yes Yes no No YES NO'.split(' ')
+const TRUE_RESPONSES = 'y Y yes Yes YES'.split(' ')
+
+function * yesOrNo (message) {
+  let response = ''
+  while (!_.includes(VALID_RESPONSES, response)) {
+    response = yield cli.prompt(message, {})
+  }
+  return _.includes(TRUE_RESPONSES, response)
+}
+
 function * generate (context, heroku) {
   const reader = new GithubReader(context.args.name)
-  const pkg = yield reader.got('.package.txt')
+  let pkg = null
+
+  try {
+    pkg = yield reader.got('.package.txt')
+  } catch (err) {
+    if (err.statusCode === 404) {
+      cli.error("The stack named '" + context.args.name + "' is not found")
+      cli.error('See https://github.com/dockhero/generators for available stacks')
+      process.exit(1)
+    }
+    throw err
+  }
   const files = pkg.body.split('\n').map(s => s.trim())
 
   if (!files || files.length === 0) {
     cli.error('.package.txt not found in ', reader.rootUrl())
     process.exit(1)
+  }
+
+  const existingFiles = _.filter(files, function (fname) {
+    return fs.existsSync(fname)
+  })
+
+  if (existingFiles.length > 0) {
+    cli.warn('The following file(s) already exist and will be overwritten:\n--> ' + existingFiles.join('\n--> '));
+    (yield yesOrNo('Proceed?')) || process.exit(1)
   }
 
   cli.log('Writing files:')
@@ -50,8 +82,14 @@ function * generate (context, heroku) {
   })
 
   yield Promise.all(promises)
-  cli.log('Stack generated successfully')
-  cli.open(reader.readmeUrl())
+
+  cli.log('Stack generated\n')
+  try {
+    const usage = yield reader.got('.usage.txt')
+    cli.log(usage.body)
+  } catch (err) {
+    cli.log('Please find more info at ' + reader.readmeUrl())
+  }
 }
 
 module.exports = {

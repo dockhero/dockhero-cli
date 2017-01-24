@@ -6,7 +6,16 @@ let co = require('co')
 function * docker (context, heroku) {
   let [, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
   let env = yield addonApi.dockerEnv(dockheroConfig)
-  yield utils.runCommand('docker', context.args, env)
+  try {
+    yield utils.runCommand('docker', context.args, env)
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      cli.error("Couldn't find docker binary installed locally")
+      cli.warn(`Please see https://docs.docker.com/engine/installation/`)
+      process.exit(1)
+    }
+    throw err
+  }
 }
 
 module.exports = {

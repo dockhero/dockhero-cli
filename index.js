@@ -12,6 +12,5 @@ exports.commands = [
   require('./commands/env.js'),
   require('./commands/open.js'),
   require('./commands/wait.js'),
-  require('./commands/generate.js'),
-  require('./commands/install.js')
+  require('./commands/generate.js')
 ]

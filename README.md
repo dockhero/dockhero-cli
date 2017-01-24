@@ -6,7 +6,7 @@ Companion CLI plugin to work with [Dockhero Heroku addon](https://elements.herok
 
 ```bash
 heroku plugins:install dockhero
-``` 
+```
 
 ## Usage
 
@@ -28,22 +28,21 @@ Docker will be configured to work with Dockhero Swarm cluster. `docker-compose` 
 The plugin also provides these helper commands:
 
 ```bash
-  dh:install  #  generate example dockhero-compose.yml
   dh:env      #  downloads TSL certificates prints out the environment variables to work with Dockhero Swarm
   dh:sh       #  run local shell with environment configured for Dockhero Swarm
   dh:ssh      #  SSH to the Docker machine
   dh:open     #  opens your Dockhero stack in the browser
   dh:wait     #  waits while the provisioning is in progress
-  dh:generate #  installs the pre-defined example
+  dh:generate #  installs the pre-defined stack - try "helloworld" as an example
 ```
 
 ## Example usage
 
-Generate example stackfile with `heroku dh:install`. 
+Generate example stackfile with `heroku dh:install`.
 You can find more stackfile examples [here](https://github.com/cloudcastle/dockhero-docs/tree/master/examples)
 
 The commands below require that your Dockhero addon provisioning is done. If it is still in progress, you can wait for it to finish with `heroku dh:wait` or track provisioning progress in Heroku addon dashboard - `heroku addons:open dockhero`
- 
+
 First you can test the stack by running it in foreground:
 
 ```
