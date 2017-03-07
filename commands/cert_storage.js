@@ -1,20 +1,21 @@
-let fs = require('fs')
-let mkdirp = require('mkdirp')
-let targz = require('tar.gz')
-let cli = require('heroku-cli-util')
+const fs = require('fs')
+const mkdirp = require('mkdirp')
+const targz = require('tar.gz')
+const cli = require('heroku-cli-util')
 
 function persistCert (config) {
-  let dockerMachinesFolder = process.env['HOME'] + '/.docker/machine/machines/'
-  let machineDir = dockerMachinesFolder + config.name
+  const dockerMachinesFolder = process.env['HOME'] + '/.docker/machine/machines/'
+  const machineDir = dockerMachinesFolder + config.name
 
   if (fs.existsSync(machineDir)) {
     return new Promise(resolve => resolve(machineDir))
   }
 
-  console.log('getting certs...')
+  console.log('Installing Docker certificates for ' + config.name + ' machine...')
+
   mkdirp.sync(machineDir)
-  let tgzStream = targz().createWriteStream(machineDir)
-  let httpStream = cli.got.stream(config.certs).pipe(tgzStream)
+  const tgzStream = targz().createWriteStream(machineDir)
+  const httpStream = cli.got.stream(config.certs).pipe(tgzStream)
 
   return new Promise((resolve, reject) => {
     httpStream.on('finish', () => resolve(machineDir))

@@ -1,8 +1,11 @@
 let addonApi = require('./addon_api')
 let cli = require('heroku-cli-util')
 let co = require('co')
+const checkForUpdates = require('../utils/check_for_updates')
 
 function * env (context, heroku) {
+  yield checkForUpdates.checkForUpdates()
+
   let [, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
   let env = yield addonApi.dockerEnv(dockheroConfig)
   Object.keys(env).forEach(key => {
