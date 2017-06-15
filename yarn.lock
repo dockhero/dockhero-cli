@@ -710,6 +710,10 @@ levn@^0.3.0, levn@~0.3.0:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
 
+lex@^1.7.9:
+  version "1.7.9"
+  resolved "https://registry.yarnpkg.com/lex/-/lex-1.7.9.tgz#5d5636ccef574348362938b79a47f0eed8ed0d43"
+
 lodash.ary@4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/lodash.ary/-/lodash.ary-4.1.0.tgz#db8eacd6d975af219ef4710b9eb2af00dddab048"
@@ -807,6 +811,12 @@ mute-stream@0.0.5:
 natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
+
+netrc-parser@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/netrc-parser/-/netrc-parser-2.0.2.tgz#6ca81104d84993f81ac9654c5d3f517897c1d2f7"
+  dependencies:
+    lex "^1.7.9"
 
 number-is-nan@^1.0.0:
   version "1.0.1"

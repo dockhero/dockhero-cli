@@ -24,6 +24,7 @@
     "heroku-cli-util": "^6.0.14",
     "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
+    "netrc-parser": "^2.0.2",
     "ora": "^0.3.0",
     "tar.gz": "^1.0.5"
   },
