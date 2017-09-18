@@ -4,7 +4,7 @@ let utils = require('./utils')
 let cli = require('heroku-cli-util')
 let co = require('co')
 
-function * compose (context, heroku) {
+function * deploy (context, heroku) {
   yield utils.checkComposeFileExist()
 
   let [[configVars, dockheroConfig], appInfo] = yield [
@@ -14,20 +14,20 @@ function * compose (context, heroku) {
 
   let env = yield addonApi.dockerEnv(dockheroConfig)
   env = Object.assign({HEROKU_APP_URL: appInfo.web_url, HEROKU_APP_NAME: appInfo.name}, configVars, env)
-  let args = ['-f', 'dockhero-compose.yml', '-p', 'dockhero'].concat(context.args)
+  let args = ['stack', 'deploy', '--compose-file', 'dockhero-compose.yml', 'dockhero'].concat(context.args)
 
   utils.checkComposeFileValid(env)
 
-  yield utils.runCommandOrExit('docker-compose', args, env)
+  yield utils.runCommandOrExit('docker', args, env)
 }
 
 module.exports = {
   topic: 'dh',
-  command: 'compose',
-  description: 'dockhero-compose',
-  help: 'run docker-compose against dockhero machine',
+  command: 'deploy',
+  description: 'docker stack deploy',
+  help: 'run docker stack deploy against dockhero machine',
   needsApp: true,
   needsAuth: true,
   variableArgs: true,
-  run: cli.command(co.wrap(compose))
+  run: cli.command(co.wrap(deploy))
 }
