@@ -13,8 +13,8 @@ function * openRsync (context, heroku) {
   let volumePrefix = `${dockheroConfig.ssh_user}@${dockheroConfig.ip}:/var/lib/docker/volumes/`
   let volumeSuffix = '/_data'
 
-  let fromPath = context.args[0].indexOf(prefix)==0 ? context.args[0].replace('dh://',volumePrefix)+volumeSuffix : context.args[0]
-  let toPath = context.args[1].indexOf(prefix)==0 ? context.args[1].replace('dh://',volumePrefix)+volumeSuffix : context.args[1]
+  let fromPath = context.args[0].indexOf(prefix) === 0 ? context.args[0].replace('dh://', volumePrefix) + volumeSuffix : context.args[0]
+  let toPath = context.args[1].indexOf(prefix) === 0 ? context.args[1].replace('dh://', volumePrefix) + volumeSuffix : context.args[1]
 
   let args = [
     '-avz',
