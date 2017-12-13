@@ -9,9 +9,10 @@ function delay (ms) {
   return new Promise(resolve => setTimeout(() => resolve(), ms))
 }
 
-function runCommand (command, args = [], env = {}) {
+function runCommand (command, args = [], env = {}, options = {}) {
   let dockerEnv = Object.assign({}, process.env, env)
-  let child = spawn(command, args, {env: dockerEnv, stdio: [0, 1, 2]})
+  let spawnOptions = Object.assign({}, {env: dockerEnv, stdio: [0, 1, 2]}, options)
+  let child = spawn(command, args, spawnOptions)
 
   return new Promise((resolve, reject) => {
     child.on('close', resolve)
