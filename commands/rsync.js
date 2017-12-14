@@ -4,17 +4,21 @@ let utils = require('./utils')
 let cli = require('heroku-cli-util')
 let co = require('co')
 
-let prefix = 'dh://'
+function replacePrefix (dockheroConfig, arg) {
+  let volumePrefix = `${dockheroConfig.ssh_user}@${dockheroConfig.ip}:/var/lib/docker/volumes/`
+  return arg.indexOf('dh://') === 0 ? arg.replace('dh://', volumePrefix) + '/_data' : arg
+}
+
+function checkExitCode (code) {
+  if (code === 127) {
+    cli.error('rsync binary was not found in $PATH. Is rsync client installed on your computer?')
+    process.exit(1)
+  }
+}
 
 function * openRsync (context, heroku) {
   let [, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
   let certPath = yield certStorage.persistCert(dockheroConfig)
-
-  let volumePrefix = `${dockheroConfig.ssh_user}@${dockheroConfig.ip}:/var/lib/docker/volumes/`
-  let volumeSuffix = '/_data'
-
-  let fromPath = context.args[0].indexOf(prefix) === 0 ? context.args[0].replace('dh://', volumePrefix) + volumeSuffix : context.args[0]
-  let toPath = context.args[1].indexOf(prefix) === 0 ? context.args[1].replace('dh://', volumePrefix) + volumeSuffix : context.args[1]
 
   let args = [
     '-avz',
@@ -22,11 +26,11 @@ function * openRsync (context, heroku) {
     `"ssh -i ${certPath}/id_rsa"`,
     '--progress',
     '--rsync-path="sudo rsync"',
-    fromPath,
-    toPath
+    replacePrefix(dockheroConfig, context.args[0]),
+    replacePrefix(dockheroConfig, context.args[1])
   ].concat(context.args.slice(2))
 
-  yield utils.runCommand('rsync', args, {}, {shell: true})
+  yield utils.runCommand('rsync', args, {}, {shell: true}).then(checkExitCode)
 }
 
 module.exports = {
