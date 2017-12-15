@@ -10,6 +10,7 @@ exports.commands = [
   require('./commands/docker.js'),
   require('./commands/sh.js'),
   require('./commands/ssh.js'),
+  require('./commands/rsync.js'),
   require('./commands/env.js'),
   require('./commands/open.js'),
   require('./commands/wait.js'),
