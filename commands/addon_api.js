@@ -12,12 +12,20 @@ const configVarsMissing = `ERROR: DOCKHERO_CONFIG_URL is not found. Please make 
 const cacheTtl = 8 * 60 * 60 * 1000
 
 function * getConfigs (context, heroku) {
-  let configVars = yield herokuApi.getConfigVars(context, heroku)
-  if (!configVars.DOCKHERO_CONFIG_URL) {
-    throw new Error(configVarsMissing)
+  let configVars;
+  if (process.env.PREFER_LOCAL_ENV) {
+    configVars = process.env
+  } else {
+    configVars = yield herokuApi.getConfigVars(context, heroku)
+    if (!configVars.DOCKHERO_CONFIG_URL) {
+      throw new Error(configVarsMissing)
+    }
   }
 
   if (!configVars.DOCKHERO_HOST) {
+    if (process.env.PREFER_LOCAL_ENV) {
+      throw Error, "ERROR: Required environment variable DOCKHERO_HOST is not set"
+    }
     let stateUrl = configVars.DOCKHERO_CONFIG_URL + '/status'
     let spinner = null
     yield waitForProvisioning(getStateProvider(stateUrl), {

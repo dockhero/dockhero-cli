@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+
+require("./common-environment")
+const { run } = require("../commands/compose")
+run(process, {})
