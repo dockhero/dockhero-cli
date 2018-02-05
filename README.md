@@ -78,6 +78,30 @@ Dockhero CLI plugin changes the rules of variable resolution to the following:
 2. Your Heroku app's variables have the next priority, e.g. `heroku config:set FOO=bar; heroku dh:compose up`
 3. The variables from your `.env` file have the least priority
 
-Dockhero CLI plugin makes the following enviroment variables available to the app:
+Dockhero CLI plugin makes the following environment variables available to the app:
 
-<TODO: >
+* DOCKHERO_HOST
+* HEROKU_APP_NAME
+
+## Using with Review Apps
+
+In order to provision Docker-based microservice automatically, you'll need to add docker-compose to your Heroku app using a buildpack:
+
+```
+heroku buildpacks:add https://github.com/dockhero/heroku-buildpack-docker-compose.git
+heroku buildpacks:add heroku/nodejs
+```
+
+Now you can use Dockhero CLI within your `postdeploy` script in `package.json` (notice how dh-docker and dh-compose binaries are used instead of `heroku dh:docker` and `heroku dh:compose` commands):
+
+```
+// package.json
+...
+  "dependencies": {
+    "dockhero": "^1.0.24"
+  },
+  "scripts": {
+    "postdeploy": "dh-compose up -d"
+  }
+...
+```

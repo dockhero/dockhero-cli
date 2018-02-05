@@ -12,7 +12,7 @@ const configVarsMissing = `ERROR: DOCKHERO_CONFIG_URL is not found. Please make 
 const cacheTtl = 8 * 60 * 60 * 1000
 
 function * getConfigs (context, heroku) {
-  let configVars;
+  let configVars
   if (process.env.PREFER_LOCAL_ENV) {
     configVars = process.env
   } else {
@@ -23,9 +23,6 @@ function * getConfigs (context, heroku) {
   }
 
   if (!configVars.DOCKHERO_HOST) {
-    if (process.env.PREFER_LOCAL_ENV) {
-      throw Error, "ERROR: Required environment variable DOCKHERO_HOST is not set"
-    }
     let stateUrl = configVars.DOCKHERO_CONFIG_URL + '/status'
     let spinner = null
     yield waitForProvisioning(getStateProvider(stateUrl), {
@@ -43,6 +40,14 @@ function * getConfigs (context, heroku) {
   }
 
   let dockheroConfig = yield getDockheroConfigCached(configVars.DOCKHERO_CONFIG_URL)
+
+  if (process.env.PREFER_LOCAL_ENV) {
+    // TODO: ask addon provider for HEROKU_APP_NAME
+    process.env.DOCKHERO_HOST = process.env.DOCKHERO_HOST || `${dockheroConfig.name}.dockhero.io`
+    process.env.DOCKHERO_FULL_SSL_URL = process.env.DOCKHERO_FULL_SSL_URL || `https://${dockheroConfig.name}-full-ssl.dockhero.io`
+    process.env.DOCKHERO_FLEXIBLE_SSL_URL = process.env.DOCKHERO_FLEXIBLE_SSL_URL || `https://${dockheroConfig.name}-flexible-ssl.dockhero.io`
+  }
+
   return [configVars, dockheroConfig]
 }
 
