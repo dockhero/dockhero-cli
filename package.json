@@ -1,6 +1,6 @@
 {
   "name": "dockhero",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "description": "Heroku CLI plugin to manage dockhero machines",
   "main": "index.js",
   "author": "@cloudcastle",
@@ -15,6 +15,12 @@
     "dh-docker": "./bin/dh-docker",
     "dh-compose": "./bin/dh-compose"
   },
+  "files": [
+    "bin/*",
+    "commands/*",
+    "index.js",
+    "package.json"
+  ],
   "keywords": [
     "dockhero",
     "docker",
