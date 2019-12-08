@@ -19,20 +19,14 @@ The plugin provides wrappers around `docker` and `docker-compose` commands.
 
 Please see official Docker guide to find out the full list of available commands
 
-Docker will be configured to work with Dockhero Swarm cluster. `docker-compose` will also receive these additional arguments:
-```
-  --file dockhero-compose.yml  -  to adjust the name of the stackfile
-  --project-name dockhero  -  to make docker-compose project name independent from the current directory
- ```
-
 The plugin also provides these helper commands:
 
 ```bash
-  dh:env      #  downloads TSL certificates prints out the environment variables to work with Dockhero Swarm
-  dh:sh       #  run local shell with environment configured for Dockhero Swarm
-  dh:ssh      #  SSH to the Docker machine
-  dh:open     #  opens your Dockhero stack in the browser
-  dh:wait     #  waits while the provisioning is in progress
+  dh:env      #  downloads TSL certificates and prints out the environment variables to work with Dockhero
+  dh:sh       #  run local shell with environment configured for Dockhero 
+  dh:ssh      #  interactive shell in the Docker machine (e.g. to reboot it)
+  dh:open     #  opens your Dockhero stack web UI in the browser (https://)
+  dh:wait     #  waits for the provisioning to finish
   dh:generate #  installs the pre-defined stack - try "helloworld" as an example
 ```
 
@@ -49,7 +43,7 @@ First you can test the stack by running it in foreground:
 heroku dh:compose up
 ```
 
-If everything works fine, stop the stack by pressing `Ctrl-C` and run it in production:
+If everything works fine, stop the stack by pressing `Ctrl-C` and run it in the background:
 
 ```
 heroku dh:compose start
@@ -92,7 +86,7 @@ heroku buildpacks:add https://github.com/dockhero/heroku-buildpack-docker-compos
 heroku buildpacks:add heroku/nodejs
 ```
 
-Now you can use Dockhero CLI within your `postdeploy` script in `package.json` (notice how dh-docker and dh-compose binaries are used instead of `heroku dh:docker` and `heroku dh:compose` commands):
+Now you can use Dockhero CLI within your `postdeploy` script in `package.json` (notice how `dh-docker` and `dh-compose` binaries are used instead of `heroku dh:docker` and `heroku dh:compose` commands):
 
 ```
 // package.json
