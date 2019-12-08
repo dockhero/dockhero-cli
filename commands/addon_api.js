@@ -11,7 +11,7 @@ const Url = require('url')
 const configVarsMissing = `ERROR: DOCKHERO_CONFIG_URL is not found. Please make sure dockhero plugin is successfully installed and try again.`
 const cacheTtl = 8 * 60 * 60 * 1000
 
-function * getConfigs (context, heroku) {
+function* getConfigs(context, heroku) {
   let configVars
   if (process.env.PREFER_LOCAL_ENV) {
     configVars = process.env
@@ -51,7 +51,7 @@ function * getConfigs (context, heroku) {
   return [configVars, dockheroConfig]
 }
 
-function * waitForProvisioning (stateProvider, callbacks) {
+function* waitForProvisioning(stateProvider, callbacks) {
   while (true) {
     let state = yield stateProvider()
     switch (state.status) {
@@ -71,29 +71,29 @@ function * waitForProvisioning (stateProvider, callbacks) {
   }
 }
 
-function * getDockheroConfigCached (configUrl) {
+function* getDockheroConfigCached(configUrl) {
   const cacheFile = `/tmp/dockhero/${Url.parse(configUrl).path.replace(/\W+/g, '')}.tmp`
 
   const cacheStats = yield fs.statAsync(cacheFile).catch(() => null)
   if (!cacheStats || (new Date() - cacheStats.mtime) > cacheTtl) {
-    const config = yield cli.got(configUrl, {json: true}).then(response => response.body)
+    const config = yield cli.got(configUrl, { json: true }).then(response => response.body)
     mkdirp('/tmp/dockhero/').then(() => fs.writeFileAsync(cacheFile, JSON.stringify(config)))
     return config
   }
   return yield fs.readFileAsync(cacheFile).then(data => JSON.parse(data))
 }
 
-function getState (stateUrl, cache) {
-  return cli.got(stateUrl, {json: true})
-  .then(response => response.body)
-  .then(state => {
-    cache.lastCheck = new Date()
-    cache.state = state
-    return state
-  })
+function getState(stateUrl, cache) {
+  return cli.got(stateUrl, { json: true })
+    .then(response => response.body)
+    .then(state => {
+      cache.lastCheck = new Date()
+      cache.state = state
+      return state
+    })
 }
 
-function getStateProvider (stateUrl) {
+function getStateProvider(stateUrl) {
   let cache = {}
   const checkPeriod = 5 * 1000
   return () => {
@@ -110,7 +110,7 @@ function getStateProvider (stateUrl) {
   }
 }
 
-function getMinutesRemaining (eta) {
+function getMinutesRemaining(eta) {
   let seconds = Math.floor((new Date(eta) - new Date()) / 1000)
   if (seconds < 0) {
     return 'almost done...'
@@ -118,12 +118,11 @@ function getMinutesRemaining (eta) {
   return [Math.floor(seconds / 60), ':', ('0' + (seconds % 60)).slice(-2)].join('')
 }
 
-function dockerEnv (config) {
+function dockerEnv(config) {
   return certStorage.persistCert(config).then(certPath => {
     let env = {
       DOCKER_HOST: config.docker_host,
       DOCKER_CERT_PATH: certPath,
-      DOCKER_MACHINE_NAME: config.name,
       DOCKER_TLS_VERIFY: '1'
     }
 

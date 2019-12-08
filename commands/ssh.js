@@ -1,24 +1,26 @@
-let addonApi = require('./addon_api')
-let certStorage = require('./cert_storage')
-let utils = require('./utils')
-let cli = require('heroku-cli-util')
-let co = require('co')
+const addonApi = require('./addon_api')
+const utils = require('./utils')
+const cli = require('heroku-cli-util')
+const co = require('co')
 
-function * openSsh (context, heroku) {
-  let [, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
-  let certPath = yield certStorage.persistCert(dockheroConfig)
-
-  let args = [`${dockheroConfig.ssh_user}@${dockheroConfig.ip}`, '-i', `${certPath}/id_rsa`]
-  yield utils.runCommand('ssh', args)
+function* openRemoteShell(context, heroku) {
+  const [, dockheroConfig] = yield addonApi.getConfigs(context, heroku)
+  const env = yield addonApi.dockerEnv(dockheroConfig)
+  const args = ['run',
+    '-v', '/:/root',
+    '-it', 'centos',
+    'sh', '-c', "chroot /root"
+  ]
+  yield utils.runCommandOrExit('docker', args, env)
 }
 
 module.exports = {
   topic: 'dh',
   command: 'ssh',
   description: 'dockhero-ssh',
-  help: 'run ssh to dockhero machine',
+  help: 'run interactive shell on dockhero machine',
   needsApp: true,
   needsAuth: true,
   variableArgs: true,
-  run: cli.command(co.wrap(openSsh))
+  run: cli.command(co.wrap(openRemoteShell))
 }
