@@ -14,18 +14,18 @@ function * compose (context, heroku) {
 
   let env = yield addonApi.dockerEnv(dockheroConfig)
   env = Object.assign({HEROKU_APP_URL: appInfo.web_url, HEROKU_APP_NAME: appInfo.name}, configVars, env)
-  let args = ['-f', 'dockhero-compose.yml', '-p', 'dockhero'].concat(context.args)
+  let args = ['compose', '-f', 'dockhero-compose.yml', '-p', 'dockhero'].concat(context.args)
 
   utils.checkComposeFileValid(env)
 
-  yield utils.runCommandOrExit('docker-compose', args, env)
+  yield utils.runCommandOrExit('docker', args, env)
 }
 
 module.exports = {
   topic: 'dh',
   command: 'compose',
   description: 'dockhero-compose',
-  help: 'run docker-compose against dockhero machine',
+  help: 'run docker compose against dockhero machine',
   needsApp: true,
   needsAuth: true,
   variableArgs: true,

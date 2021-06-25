@@ -7,7 +7,7 @@ function persistCert(config) {
   let dockerMachinesFolder = process.env['HOME'] + '/.docker/machine/machines/'
   let machineDir = dockerMachinesFolder + config.name
 
-  if (fs.existsSync(machineDir)) {
+  if (fs.existsSync(machineDir + "/key.pem")) {
     return new Promise(resolve => resolve(machineDir))
   }
 
